@@ -1,0 +1,110 @@
+#include "BluetoothSerial.h"
+
+// Verifica se o Bluetooth está habilitado nas configurações do projeto
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
+
+// Objeto para a comunicação via Bluetooth Serial
+BluetoothSerial SerialBT;
+
+// Ponte H1
+const int M1_IN1 = 13;
+const int M1_IN2 = 14;
+const int M1_ENA = 25; 
+const int M2_IN3 = 26;
+const int M2_IN4 = 27;
+const int M2_ENB = 32;
+
+// Ponte H2
+const int M3_IN1 = 18;
+const int M3_IN2 = 19;
+const int M3_ENA = 33;
+const int M4_IN3 = 21;
+const int M4_IN4 = 22;
+const int M4_ENB = 5;
+
+
+void setup() {
+ 
+  // Debug para acompanhamento no Terminal.
+  Serial.begin(115200);
+  
+  // Inicia o Bluetooth com um nome para o dispositivo
+  SerialBT.begin("ESP32 - AGV"); 
+  Serial.println("Dispositivo Conectado!");
+  Serial.println("Aguardando comandos...");
+
+
+  // Pinos Pont H
+  pinMode(M1_IN1, OUTPUT);
+  pinMode(M1_IN2, OUTPUT);
+  pinMode(M2_IN3, OUTPUT);
+  pinMode(M2_IN4, OUTPUT);
+  pinMode(M3_IN1, OUTPUT);
+  pinMode(M3_IN2, OUTPUT);
+  pinMode(M4_IN3, OUTPUT);
+  pinMode(M4_IN4, OUTPUT);
+  
+  pinMode(M1_ENA, OUTPUT);
+  pinMode(M2_ENB, OUTPUT);
+  pinMode(M3_ENA, OUTPUT);
+  pinMode(M4_ENB, OUTPUT);
+
+  // Iniciar com Motores Parados
+  Parar();
+}
+
+
+void loop() {
+  
+  // Verifica se há algum dado chegando via Bluetooth
+  if (SerialBT.available()) {
+    // Lê o comando recebido como uma String
+    String comando = SerialBT.readString();
+    comando.trim(); // Limpa espaços em branco e quebras de linha
+
+
+    // Executa conforme Comando Recebido
+    if (comando.equalsIgnoreCase("Cima")) {
+      Cima();
+    } 
+    else if (comando.equalsIgnoreCase("Parar")) {
+      Parar();
+    }
+  }
+}
+
+// FUNÇÔES DE CONTROLE
+
+void Cima() {
+ 
+  digitalWrite(M1_IN1, HIGH);
+  digitalWrite(M1_IN2, LOW);
+  digitalWrite(M2_IN3, HIGH);
+  digitalWrite(M2_IN4, LOW);
+  digitalWrite(M3_IN1, HIGH);
+  digitalWrite(M3_IN2, LOW);
+  digitalWrite(M4_IN3, HIGH);
+  digitalWrite(M4_IN4, LOW);
+  digitalWrite(M1_ENA, HIGH);
+  digitalWrite(M2_ENB, HIGH);
+  digitalWrite(M3_ENA, HIGH);
+  digitalWrite(M4_ENB, HIGH);
+}
+
+void Parar() {
+ 
+  digitalWrite(M1_IN1, LOW);
+  digitalWrite(M1_IN2, LOW);
+  digitalWrite(M2_IN3, LOW);
+  digitalWrite(M2_IN4, LOW);
+  digitalWrite(M3_IN1, LOW);
+  digitalWrite(M3_IN2, LOW);
+  digitalWrite(M4_IN3, LOW);
+  digitalWrite(M4_IN4, LOW);
+  digitalWrite(M1_ENA, LOW);
+  digitalWrite(M2_ENB, LOW);
+  digitalWrite(M3_ENA, LOW);
+  digitalWrite(M4_ENB, LOW);
+}
